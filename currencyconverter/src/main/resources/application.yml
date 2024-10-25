@@ -1,0 +1,12 @@
+server:
+  port: 8080
+
+currency:
+  api:
+    key: 4aeace0f86a83e626dee6fddd4758b03
+    url:
+      latest: https://api.exchangeratesapi.io/v1/latest
+
+spring:
+  cache:
+    type: caffeine
