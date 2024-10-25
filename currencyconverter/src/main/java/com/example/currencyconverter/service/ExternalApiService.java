@@ -8,6 +8,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import java.math.BigDecimal;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class ExternalApiService {
@@ -22,6 +24,23 @@ public class ExternalApiService {
 
     public ExternalApiService(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
+    }
+
+    // Fetches all available currencies dynamically
+    public Set<String> getSupportedCurrencies() {
+        String url = String.format("%s?access_key=%s", latestApiUrl, apiKey);
+        Map<String, Object> response = restTemplate.getForObject(url, Map.class);
+
+        if (response == null || !response.containsKey("rates")) {
+            throw new RuntimeException("Failed to fetch supported currencies");
+        }
+
+        Map<String, Object> rates = (Map<String, Object>) response.get("rates");
+
+        // Collect the currency codes dynamically
+        return rates.keySet()
+                .stream()
+                .collect(Collectors.toSet());
     }
 
     @Cacheable(value = "exchangeRates", key = "#toCurrency")

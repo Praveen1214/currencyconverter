@@ -6,7 +6,6 @@ import com.example.currencyconverter.exception.ApiException;
 import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -14,25 +13,36 @@ import java.util.Set;
 public class CurrencyService {
 
     private final ExternalApiService externalApiService;
-    private final Set<String> supportedCurrencies = Set.of("USD", "EUR", "GBP", "JPY", "AUD", "CAD", "CHF", "CNY", "INR");
 
     public CurrencyService(ExternalApiService externalApiService) {
         this.externalApiService = externalApiService;
     }
 
+    public List<String> getSupportedCurrencies() {
+        // Get the supported currencies dynamically from the ExternalApiService
+        Set<String> supportedCurrencies = externalApiService.getSupportedCurrencies();
+        return List.copyOf(supportedCurrencies); // Convert Set to List
+    }
+
     public ConversionResponse convertCurrency(ConversionRequest request) {
+        // Validate that the requested currencies are supported
         validateCurrencies(request.getSourceCurrency(), request.getTargetCurrency());
+
+        // Validate that the amount is valid (greater than zero)
         validateAmount(request.getAmount());
 
+        // Fetch the exchange rate from ExternalApiService
         BigDecimal exchangeRate = externalApiService.getExchangeRate(
                 request.getSourceCurrency(),
                 request.getTargetCurrency()
         );
 
+        // Calculate the converted amount, rounded to 2 decimal places
         BigDecimal convertedAmount = request.getAmount()
                 .multiply(exchangeRate)
                 .setScale(2, RoundingMode.HALF_UP);
 
+        // Return the ConversionResponse object
         return new ConversionResponse(
                 request.getSourceCurrency(),
                 request.getTargetCurrency(),
@@ -43,6 +53,10 @@ public class CurrencyService {
     }
 
     private void validateCurrencies(String sourceCurrency, String targetCurrency) {
+        // Get supported currencies dynamically from the external API
+        Set<String> supportedCurrencies = externalApiService.getSupportedCurrencies();
+
+        // Check if source and target currencies are supported
         if (!supportedCurrencies.contains(sourceCurrency)) {
             throw new ApiException("Unsupported source currency: " + sourceCurrency);
         }
@@ -52,12 +66,9 @@ public class CurrencyService {
     }
 
     private void validateAmount(BigDecimal amount) {
+        // Ensure the amount is positive
         if (amount.compareTo(BigDecimal.ZERO) <= 0) {
             throw new ApiException("Amount must be positive");
         }
-    }
-
-    public List<String> getSupportedCurrencies() {
-        return new ArrayList<>(supportedCurrencies);
     }
 }
