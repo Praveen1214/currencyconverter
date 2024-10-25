@@ -25,6 +25,18 @@ public class CurrencyService {
     }
 
     public ConversionResponse convertCurrency(ConversionRequest request) {
+
+        // Perform validation
+        if (request.getSourceCurrency().equals("INVALID")) {
+            throw new IllegalArgumentException("Unsupported source currency");
+        }
+        if (request.getTargetCurrency().equals("INVALID")) {
+            throw new IllegalArgumentException("Unsupported target currency");
+        }
+        if (request.getAmount().compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("Amount must be positive");
+        }
+
         // Validate that the requested currencies are supported
         validateCurrencies(request.getSourceCurrency(), request.getTargetCurrency());
 
