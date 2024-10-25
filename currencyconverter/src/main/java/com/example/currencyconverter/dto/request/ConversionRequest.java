@@ -6,16 +6,13 @@ import jakarta.validation.constraints.*;
 import java.math.BigDecimal;
 
 public class ConversionRequest {
-    @NotNull(message = "Source currency is required")
-    @Size(min = 3, max = 3, message = "Source currency must be a 3-letter code")
+    @NotBlank(message = "Source currency cannot be blank")
     private String sourceCurrency;
 
-    @NotNull(message = "Target currency is required")
-    @Size(min = 3, max = 3, message = "Target currency must be a 3-letter code")
+    @NotBlank(message = "Target currency cannot be blank")
     private String targetCurrency;
 
-    @NotNull(message = "Amount is required")
-    @Positive(message = "Amount must be positive")
+    @DecimalMin(value = "0.01", message = "Amount must be positive")
     private BigDecimal amount;
 
     // Getters and setters
