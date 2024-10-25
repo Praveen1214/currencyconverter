@@ -22,6 +22,7 @@ public class CurrencyService {
 
     public ConversionResponse convertCurrency(ConversionRequest request) {
         validateCurrencies(request.getSourceCurrency(), request.getTargetCurrency());
+        validateAmount(request.getAmount());
 
         BigDecimal exchangeRate = externalApiService.getExchangeRate(
                 request.getSourceCurrency(),
@@ -47,6 +48,12 @@ public class CurrencyService {
         }
         if (!supportedCurrencies.contains(targetCurrency)) {
             throw new ApiException("Unsupported target currency: " + targetCurrency);
+        }
+    }
+
+    private void validateAmount(BigDecimal amount) {
+        if (amount.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new ApiException("Amount must be positive");
         }
     }
 

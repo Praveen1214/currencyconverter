@@ -1,17 +1,20 @@
 // ConversionRequest.java
 package com.example.currencyconverter.dto.request;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.*;
+
 import java.math.BigDecimal;
 
 public class ConversionRequest {
-    @NotBlank(message = "Source currency is required")
+    @NotNull(message = "Source currency is required")
+    @Size(min = 3, max = 3, message = "Source currency must be a 3-letter code")
     private String sourceCurrency;
 
-    @NotBlank(message = "Target currency is required")
+    @NotNull(message = "Target currency is required")
+    @Size(min = 3, max = 3, message = "Target currency must be a 3-letter code")
     private String targetCurrency;
 
+    @NotNull(message = "Amount is required")
     @Positive(message = "Amount must be positive")
     private BigDecimal amount;
 
